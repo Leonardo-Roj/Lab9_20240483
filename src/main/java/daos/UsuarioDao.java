@@ -26,10 +26,8 @@ public class UsuarioDao extends DaoBase{
     //Nuevo user
 
     public boolean registrarUsuario(Usuario usuario) throws SQLException{
-        String sql = """
-                INSERT INTO usuario (nombres, apellidos, email, password_hash, rol, estado)
-                VALUES (?, ?, ?, ?, 'LECTOR', 'ACTIVO')
-                """;
+        String sql = "INSERT INTO usuario (nombres, apellidos, email, password_hash, rol, estado)\n" +
+                     "VALUES (?, ?, ?, ?, 'LECTOR', 'ACTIVO')\n";
 
                 try (Connection conn = getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -43,7 +41,9 @@ public class UsuarioDao extends DaoBase{
     }
 
     public Usuario validarUsuario(String email, String passwordHash)throws SQLException{
-        Usario usuario = null;
+        Usuario usuario = null;
+        String sql = "SELECT * FROM usuario" + "WHERE email = ? AND password_hash = ?" +
+                "AND estado = 'ACTIVO'";
 
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -52,20 +52,20 @@ public class UsuarioDao extends DaoBase{
             pstmt.setString(2, usuario.getApellidos());
             pstmt.setString(3, usuario.getEmail());
             pstmt.setString(4, usuario.getPasswordHash());
-            return pstmt.executeUpdate() == 1;
-        }
 
-        try (ResultSet rs = pstmt.executeQuery()){
-            if(rs.next()){
-                usuario = new Usuario();
-                usuario.setIdUsuario(rs.getInt("id_usuario"));
-                usuario.setNombres(rs.getString("nombres"));
-                usuario.setApellidos(rs.getString("apellidos"));
-                usuario.setEmail(rs.getString("email"));
-                usuario.setRol(rs.getString("rol"));
-                usuario.setEstado(rs.getString("estado"));
+            try (ResultSet rs = pstmt.executeQuery()){
+                if(rs.next()){
+                    usuario = new Usuario();
+                    usuario.setIdUsuario(rs.getInt("id_usuario"));
+                    usuario.setNombres(rs.getString("nombres"));
+                    usuario.setApellidos(rs.getString("apellidos"));
+                    usuario.setEmail(rs.getString("email"));
+                    usuario.setRol(rs.getString("rol"));
+                    usuario.setEstado(rs.getString("estado"));
+                }
             }
         }
+
         return usuario;
     }
 }
